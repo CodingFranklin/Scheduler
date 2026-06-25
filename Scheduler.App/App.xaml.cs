@@ -1,4 +1,10 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Scheduler.App.Data;
+using Scheduler.App.Data.Repositories;
 using System.Windows;
 
 namespace Scheduler.App;
@@ -14,17 +20,28 @@ public partial class App : Application
     /// </summary>
     public static IServiceProvider Services { get; private set; } = null!;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
         // -- DI Configuration Entry Point --
-        // Register all services, ViewModels, and windows here in later phases.
         var services = new ServiceCollection();
 
         ConfigureServices(services);
 
         Services = services.BuildServiceProvider();
+
+        // Ensure database and seed data are created before UI loads
+        using (var scope = Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
+            db.Database.EnsureCreated();
+
+            // Quick verification that repositories and seed data work
+            var categoryRepo = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
+            var categories = await categoryRepo.GetAllAsync();
+            Debug.WriteLine($"[Scheduler] Database initialized with {categories.Count} default categories.");
+        }
 
         // Resolve MainWindow from DI to enable constructor injection
         var mainWindow = Services.GetRequiredService<MainWindow>();
@@ -37,16 +54,27 @@ public partial class App : Application
     /// </summary>
     private static void ConfigureServices(IServiceCollection services)
     {
+        // Database
+        var dbFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Scheduler");
+        Directory.CreateDirectory(dbFolder);
+        var dbPath = Path.Combine(dbFolder, "scheduler.db");
+
+        services.AddDbContext<SchedulerDbContext>(options =>
+            options.UseSqlite($"Data Source={dbPath}"));
+
+        // Repositories
+        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+
         // ViewModels
         services.AddTransient<ViewModels.MainViewModel>();
 
         // Windows
         services.AddTransient<MainWindow>();
 
-        // Future registrations (examples, commented out for now):
-        // services.AddDbContext<SchedulerDbContext>(...);
-        // services.AddScoped<IEventRepository, EventRepository>();
-        // services.AddScoped<ICategoryRepository, CategoryRepository>();
+        // Future registrations:
         // services.AddSingleton<IcsSyncService>();
     }
 }
