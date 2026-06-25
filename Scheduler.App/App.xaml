@@ -1,0 +1,7 @@
+<Application x:Class="Scheduler.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <!-- 全局资源将在此处定义，后续阶段补充 Styles / Colors -->
+    </Application.Resources>
+</Application>
