@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,10 +36,9 @@ public partial class App : Application
             var db = scope.ServiceProvider.GetRequiredService<SchedulerDbContext>();
             db.Database.EnsureCreated();
 
-            // Quick verification that repositories and seed data work
+            // Ensure repositories and seed data work
             var categoryRepo = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
             var categories = await categoryRepo.GetAllAsync();
-            Debug.WriteLine($"[Scheduler] Database initialized with {categories.Count} default categories.");
         }
 
         // Resolve MainWindow from DI to enable constructor injection
@@ -69,6 +67,7 @@ public partial class App : Application
         services.AddScoped<ICategoryRepository, CategoryRepository>();
 
         // ViewModels
+        services.AddTransient<ViewModels.CalendarViewModel>();
         services.AddTransient<ViewModels.MainViewModel>();
 
         // Windows

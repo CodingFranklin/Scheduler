@@ -3,15 +3,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Scheduler.App.ViewModels;
 
 /// <summary>
-/// Main ViewModel for the application shell.
-/// Will be expanded in later phases with calendar navigation, event lists, etc.
+/// Root ViewModel for the main application shell.
+/// Hosts the CalendarViewModel for the primary content area.
 /// </summary>
 public partial class MainViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private string _welcomeMessage = "Scheduler";
+    /// <summary>
+    /// The calendar view model driving the month view.
+    /// </summary>
+    public CalendarViewModel Calendar { get; }
 
-    public MainViewModel()
+    public MainViewModel(CalendarViewModel calendarViewModel)
     {
+        Calendar = calendarViewModel;
     }
 }

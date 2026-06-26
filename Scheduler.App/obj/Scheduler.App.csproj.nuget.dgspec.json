@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.app\\Scheduler.App.csproj": {}
+    "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.App\\Scheduler.App.csproj": {}
   },
   "projects": {
-    "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.app\\Scheduler.App.csproj": {
+    "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.App\\Scheduler.App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.app\\Scheduler.App.csproj",
+        "projectUniqueName": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.App\\Scheduler.App.csproj",
         "projectName": "Scheduler.App",
-        "projectPath": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.app\\Scheduler.App.csproj",
+        "projectPath": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.App\\Scheduler.App.csproj",
         "packagesPath": "C:\\Users\\lll\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.app\\obj\\",
+        "outputPath": "C:\\Users\\lll\\Documents\\Scheduler\\Scheduler.App\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\lll\\AppData\\Roaming\\NuGet\\NuGet.Config"
