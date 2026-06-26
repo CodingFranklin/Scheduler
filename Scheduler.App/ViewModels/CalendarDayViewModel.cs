@@ -10,7 +10,7 @@ namespace Scheduler.App.ViewModels;
 public partial class CalendarDayViewModel : ObservableObject
 {
     /// <summary>
-    /// True if this cell is a placeholder (before 1st or after last day of month).
+    /// True if this cell is a placeholder before or after the visible month.
     /// </summary>
     public bool IsPlaceholder { get; set; }
 
@@ -20,7 +20,7 @@ public partial class CalendarDayViewModel : ObservableObject
     public DateTime? Date { get; set; }
 
     /// <summary>
-    /// The day number to display. Null for placeholder cells (shows empty).
+    /// The day number to display. Null for placeholder cells.
     /// </summary>
     public int? DayNumber { get; set; }
 
@@ -32,7 +32,31 @@ public partial class CalendarDayViewModel : ObservableObject
     public bool IsToday { get; set; }
 
     /// <summary>
-    /// Events on this day. Reserved for later phases.
+    /// TODO items on this day. Reserved for the next data-loading phase.
     /// </summary>
     public ObservableCollection<CalendarEvent> Events { get; set; } = new();
+
+    public static CalendarDayViewModel CreatePlaceholder()
+    {
+        return new CalendarDayViewModel
+        {
+            IsPlaceholder = true,
+            Date = null,
+            DayNumber = null,
+            IsCurrentMonth = false,
+            IsToday = false
+        };
+    }
+
+    public static CalendarDayViewModel CreateDate(DateTime date, bool isToday)
+    {
+        return new CalendarDayViewModel
+        {
+            IsPlaceholder = false,
+            Date = date,
+            DayNumber = date.Day,
+            IsCurrentMonth = true,
+            IsToday = isToday
+        };
+    }
 }

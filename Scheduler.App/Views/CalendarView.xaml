@@ -3,6 +3,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:Scheduler.App.Views">
 
+    <UserControl.Resources>
+        <Style x:Key="MonthHintTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#8A8A8A"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="MonthHintButtonStyle" TargetType="Button">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.68"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,17 +51,9 @@
                 BorderThickness="0,0,0,1" Padding="16,10">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="&#x25C0;" Command="{Binding PreviousMonthCommand}"
-                            Width="34" Height="34" FontSize="14"
-                            Background="Transparent" BorderBrush="#CCCCCC"
-                            Cursor="Hand"/>
                     <Button Content="Today" Command="{Binding GoToTodayCommand}"
-                            Margin="8,0" Height="34" Padding="16,0"
+                            Height="34" Padding="16,0"
                             Background="White" BorderBrush="#CCCCCC"
-                            Cursor="Hand"/>
-                    <Button Content="&#x25B6;" Command="{Binding NextMonthCommand}"
-                            Width="34" Height="34" FontSize="14"
-                            Background="Transparent" BorderBrush="#CCCCCC"
                             Cursor="Hand"/>
                 </StackPanel>
                 <TextBlock Text="{Binding MonthTitle}"
@@ -34,31 +63,85 @@
             </Grid>
         </Border>
 
-        <!-- Main area: prev peek | current month | next peek -->
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="48"/>   <!-- prev peek, clipped -->
-                <RowDefinition Height="*"/>     <!-- current month, full -->
-                <RowDefinition Height="48"/>   <!-- next peek, clipped -->
+                <RowDefinition Height="42"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="42"/>
             </Grid.RowDefinitions>
 
-            <!-- Previous month preview: dimmed text only -->
-            <TextBlock Grid.Row="0" Text="{Binding PrevMonthData.MonthTitle}"
-                       FontSize="14" Foreground="#999999"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       IsHitTestVisible="False"/>
+            <Button Grid.Row="0"
+                    Click="PreviousHintButton_Click"
+                    Style="{StaticResource MonthHintButtonStyle}"
+                    BorderBrush="#E9E9E9"
+                    BorderThickness="0,0,0,1">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FAFAFA" Offset="0"/>
+                        <GradientStop Color="#D8FAFAFA" Offset="0.42"/>
+                        <GradientStop Color="#30FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="&#x25B2;"
+                               FontSize="11"
+                               Foreground="#A0A0A0"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding PrevMonthData.MonthTitle}"
+                               Style="{StaticResource MonthHintTextStyle}"/>
+                </StackPanel>
+            </Button>
 
-            <!-- Current month: full display -->
-            <views:MonthView Grid.Row="1" x:Name="MainMonthView"
-                             DataContext="{Binding}"
-                             HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"/>
+            <!-- Month viewport: a clipped camera looking at one moving paper. -->
+            <Border x:Name="Viewport"
+                    Grid.Row="1"
+                    Background="Transparent"
+                    ClipToBounds="True"
+                    Cursor="SizeNS"
+                    SizeChanged="Viewport_SizeChanged"
+                    PreviewMouseLeftButtonDown="Viewport_PreviewMouseLeftButtonDown"
+                    PreviewMouseMove="Viewport_PreviewMouseMove"
+                    PreviewMouseLeftButtonUp="Viewport_PreviewMouseLeftButtonUp"
+                    LostMouseCapture="Viewport_LostMouseCapture">
+                <Canvas x:Name="Paper"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform x:Name="PaperTransform" Y="0"/>
+                    </Canvas.RenderTransform>
 
-            <!-- Next month preview: dimmed text only -->
-            <TextBlock Grid.Row="2" Text="{Binding NextMonthData.MonthTitle}"
-                       FontSize="14" Foreground="#999999"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                       IsHitTestVisible="False"/>
+                    <views:MonthView x:Name="PrevMonthView"
+                                     DataContext="{Binding PrevMonthData}"/>
+                    <views:MonthView x:Name="CurrentMonthView"
+                                     DataContext="{Binding CurrentMonthData}"/>
+                    <views:MonthView x:Name="NextMonthView"
+                                     DataContext="{Binding NextMonthData}"/>
+                </Canvas>
+            </Border>
+
+            <Button Grid.Row="2"
+                    Click="NextHintButton_Click"
+                    Style="{StaticResource MonthHintButtonStyle}"
+                    BorderBrush="#E9E9E9"
+                    BorderThickness="0,1,0,0">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#30FAFAFA" Offset="0"/>
+                        <GradientStop Color="#D8FAFAFA" Offset="0.58"/>
+                        <GradientStop Color="#FAFAFA" Offset="1"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding NextMonthData.MonthTitle}"
+                               Style="{StaticResource MonthHintTextStyle}"/>
+                    <TextBlock Text="&#x25BC;"
+                               FontSize="11"
+                               Foreground="#A0A0A0"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </UserControl>

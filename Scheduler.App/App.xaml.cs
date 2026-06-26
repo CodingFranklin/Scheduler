@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Scheduler.App.Data;
 using Scheduler.App.Data.Repositories;
+using Scheduler.App.Services;
 using System.Windows;
 
 namespace Scheduler.App;
@@ -65,6 +66,9 @@ public partial class App : Application
         // Repositories
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+        // Services
+        services.AddSingleton<ICalendarMonthFactory, CalendarMonthFactory>();
 
         // ViewModels
         services.AddTransient<ViewModels.CalendarViewModel>();
