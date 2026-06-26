@@ -34,8 +34,31 @@
             </Grid>
         </Border>
 
-        <!-- Single month view -->
-        <views:MonthView Grid.Row="1" DataContext="{Binding}"
-                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <!-- Main area: prev peek | current month | next peek -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48"/>   <!-- prev peek, clipped -->
+                <RowDefinition Height="*"/>     <!-- current month, full -->
+                <RowDefinition Height="48"/>   <!-- next peek, clipped -->
+            </Grid.RowDefinitions>
+
+            <!-- Previous month preview: dimmed text only -->
+            <TextBlock Grid.Row="0" Text="{Binding PrevMonthData.MonthTitle}"
+                       FontSize="14" Foreground="#999999"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+
+            <!-- Current month: full display -->
+            <views:MonthView Grid.Row="1" x:Name="MainMonthView"
+                             DataContext="{Binding}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"/>
+
+            <!-- Next month preview: dimmed text only -->
+            <TextBlock Grid.Row="2" Text="{Binding NextMonthData.MonthTitle}"
+                       FontSize="14" Foreground="#999999"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       IsHitTestVisible="False"/>
+        </Grid>
     </Grid>
 </UserControl>
